@@ -1,14 +1,16 @@
 package Database;
 
 // Java Imports
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 
 // Third Party Imports
 import org.postgresql.ds.PGSimpleDataSource;
+
+// Local Imports
+import DataObjects.Grocery;
 
 /**
  * Class for interfacing with a database
@@ -103,7 +105,38 @@ public class PostgresqlDatabase {
         }
         return result;
     }
-
+    /**
+     * gets groceries from database
+     * @return  list of groceries
+     */
+    public List<Grocery> getAllGroceries() {
+        List<Grocery> groceries = new ArrayList<>();
+        try (PreparedStatement prepStatement = this.connection.prepareCall("SELECT * FROM get_all_groceries()")) {
+            prepStatement.setQueryTimeout(TIMEOUT);
+            try (ResultSet resultSet = prepStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    groceries.add ( new Grocery (resultSet.getInt(1), resultSet.getString("name"), resultSet.getDouble("price"), resultSet.getInt("stock")));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return groceries;
+    }
+    /**
+     * Checks out the groceries from database
+     * @return  No return
+     */
+    public void checkout(int id, int quantity) {
+        try (CallableStatement statement = this.connection.prepareCall("{call checkout(?, ?)}")) {
+            statement.setQueryTimeout(TIMEOUT);
+            statement.setInt(1, id);
+            statement.setInt(2, quantity);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
     // Getters & Setters
     /**

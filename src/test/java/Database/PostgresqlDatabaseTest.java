@@ -3,12 +3,16 @@ package Database;
 // Java Imports
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
 // Third Party Imports
 import static org.junit.Assert.assertNotNull;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+// Local Imports
+import DataObjects.Grocery;
 
 /**
  * Tests for database functionality
@@ -39,6 +43,17 @@ public class PostgresqlDatabaseTest {
     public void testGetVersion() {
         System.out.println("PostgresqlDatabaseTest: testGetVersion");
         String result = pgDB.getVersion();
+        System.out.println(result);
+        assertNotNull(result);
+    }
+
+    /**
+     * Basic test to check connection
+     */
+    @Test
+    public void test() {
+        System.out.println("PostgresqlDatabaseTest: testGetVersion");
+        List<Grocery> result = pgDB.getAllGroceries();
         System.out.println(result);
         assertNotNull(result);
     }
